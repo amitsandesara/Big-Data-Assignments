@@ -1,0 +1,11 @@
+A = LOAD 'input.txt' using PigStorage('\n') AS (info: chararray);
+I = LOAD 'default.txt' using PigStorage('\n') AS (name: chararray);
+R = UNION A, I;
+B = foreach R generate org.apache.pig.tutorial.ToLower(info) as info;
+C = foreach B generate REPLACE(info, '[^\\w\\d]+',' ') as info;
+D = foreach C generate flatten(TOKENIZE(info)) as word;
+E = group D by word;
+F = foreach E generate group, (COUNT(D)-1);
+G = FILTER F BY (group == 'hackathon' OR group == 'dec' OR group == 'chicago' OR group == 'java');
+DUMP G;
+STORE G INTO './output' USING PigStorage(' ');
